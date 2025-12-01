@@ -53,9 +53,6 @@ Route::middleware('auth:sanctum')->group(function () {
   // Update status bug (plus create history)
   Route::put('/bugs/{id}/status', [BugController::class, 'updateStatus']);
 
-  // History bug (opsional, kalo mau endpoint terpisah)
-  // Route::get('/bugs/{id}/history', [BugController::class, 'history']);
-
   // ===== COMMENTS =====
   Route::get('/bugs/{bugId}/comments', [CommentController::class, 'index']);     // List comments
   Route::post('/bugs/{bugId}/comments', [CommentController::class, 'store']);    // Add comment

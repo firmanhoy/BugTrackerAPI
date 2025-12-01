@@ -17,8 +17,8 @@
                 "tags": [
                     "Attachments"
                 ],
-                "summary": "List file attachment bug",
-                "description": "Mengambil semua file yang ter-attach pada suatu bug.",
+                "summary": "List semua attachment di bug tertentu",
+                "description": "Menampilkan daftar semua file yang dilampirkan pada bug, termasuk URL publik untuk diakses client app.",
                 "operationId": "2089891a07344d6f53e5f75bcd16a655",
                 "parameters": [
                     {
@@ -34,7 +34,62 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Daftar attachment berhasil diambil"
+                        "description": "List attachments berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "filename": {
+                                                        "type": "string",
+                                                        "example": "screenshot.png"
+                                                    },
+                                                    "mime_type": {
+                                                        "type": "string",
+                                                        "example": "image/png"
+                                                    },
+                                                    "file_size": {
+                                                        "type": "integer",
+                                                        "example": 204856
+                                                    },
+                                                    "url": {
+                                                        "type": "string",
+                                                        "example": "http://localhost:8000/storage/attachments/bug_1/screenshot.png"
+                                                    },
+                                                    "uploaded_by": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 2
+                                                            },
+                                                            "name": {
+                                                                "type": "string",
+                                                                "example": "QA User"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "uploaded_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": "2024-12-01T10:30:00Z"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "404": {
                         "description": "Bug tidak ditemukan"
@@ -53,8 +108,8 @@
                 "tags": [
                     "Attachments"
                 ],
-                "summary": "Upload file untuk bug",
-                "description": "Meng-upload file (misal screenshot) dan menghubungkannya dengan bug tertentu.",
+                "summary": "Upload file attachment ke bug",
+                "description": "Upload file (screenshot, log, dll) ke bug tertentu. File akan disimpan di storage dan URL publik akan dikembalikan.",
                 "operationId": "77d1b1a2b89ed2db0d54ebf8c7df9a6a",
                 "parameters": [
                     {
@@ -69,6 +124,7 @@
                     }
                 ],
                 "requestBody": {
+                    "description": "File yang akan diupload",
                     "required": true,
                     "content": {
                         "multipart/form-data": {
@@ -78,7 +134,7 @@
                                 ],
                                 "properties": {
                                     "file": {
-                                        "description": "File yang akan di-upload (max 10MB)",
+                                        "description": "File attachment (max 10MB, format: jpg, jpeg, png, gif, pdf, txt, log, doc, docx)",
                                         "type": "string",
                                         "format": "binary"
                                     }
@@ -90,10 +146,65 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "File berhasil di-upload"
+                        "description": "File berhasil diupload",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "File uploaded successfully"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "filename": {
+                                                    "type": "string",
+                                                    "example": "screenshot.png"
+                                                },
+                                                "mime_type": {
+                                                    "type": "string",
+                                                    "example": "image/png"
+                                                },
+                                                "file_size": {
+                                                    "type": "integer",
+                                                    "example": 204856
+                                                },
+                                                "url": {
+                                                    "type": "string",
+                                                    "example": "http://localhost:8000/storage/attachments/bug_1/1733052840_screenshot.png"
+                                                },
+                                                "uploaded_by": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 2
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "example": "QA User"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "uploaded_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "422": {
-                        "description": "Validasi gagal (ukuran/tipe file salah, dsb)"
+                        "description": "Validasi gagal (file terlalu besar atau format tidak didukung)"
                     },
                     "404": {
                         "description": "Bug tidak ditemukan"
@@ -110,12 +221,107 @@
             }
         },
         "/api/attachments/{id}": {
+            "get": {
+                "tags": [
+                    "Attachments"
+                ],
+                "summary": "Get detail attachment",
+                "description": "Mendapatkan informasi lengkap attachment beserta URL publik untuk display di client app.",
+                "operationId": "70172d772dc02144178f2ce0e1556940",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID attachment",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail attachment berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "bug_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "bug_title": {
+                                                    "type": "string",
+                                                    "example": "Login button tidak berfungsi"
+                                                },
+                                                "filename": {
+                                                    "type": "string",
+                                                    "example": "screenshot.png"
+                                                },
+                                                "mime_type": {
+                                                    "type": "string",
+                                                    "example": "image/png"
+                                                },
+                                                "file_size": {
+                                                    "type": "integer",
+                                                    "example": 204856
+                                                },
+                                                "url": {
+                                                    "type": "string",
+                                                    "example": "http://localhost:8000/storage/attachments/bug_1/screenshot.png"
+                                                },
+                                                "uploaded_by": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 2
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "example": "QA User"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "uploaded_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Attachment tidak ditemukan"
+                    },
+                    "401": {
+                        "description": "Tidak terautentikasi"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
             "delete": {
                 "tags": [
                     "Attachments"
                 ],
-                "summary": "Hapus attachment",
-                "description": "Menghapus file attachment dari bug.",
+                "summary": "Delete attachment",
+                "description": "Menghapus attachment dari bug. File akan dihapus dari storage dan database.",
                 "operationId": "66e2f863588e3bac0aca3972e89726b3",
                 "parameters": [
                     {
@@ -131,7 +337,64 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Attachment berhasil dihapus"
+                        "description": "Attachment berhasil dihapus",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Attachment deleted successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Attachment tidak ditemukan"
+                    },
+                    "403": {
+                        "description": "Tidak memiliki akses untuk menghapus attachment ini"
+                    },
+                    "401": {
+                        "description": "Tidak terautentikasi"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/attachments/{id}/download": {
+            "get": {
+                "tags": [
+                    "Attachments"
+                ],
+                "summary": "Download attachment",
+                "description": "Download file attachment dengan nama original. File akan langsung terdownload ke device client.",
+                "operationId": "ac2fb7d837f7280d677a7a797d1ff8b6",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID attachment",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "File berhasil didownload",
+                        "content": {
+                            "application/octet-stream": {}
+                        }
                     },
                     "404": {
                         "description": "Attachment tidak ditemukan"
@@ -866,7 +1129,7 @@
     "tags": [
         {
             "name": "Attachments",
-            "description": "Attachments"
+            "description": "Endpoints untuk mengelola file lampiran pada bug"
         },
         {
             "name": "Auth",
