@@ -1,0 +1,888 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Bug Tracker API",
+        "description": "Dokumentasi REST API Bug Tracker untuk QA, DEV, dan PM.",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8000",
+            "description": "Local development server"
+        }
+    ],
+    "paths": {
+        "/api/bugs/{bugId}/attachments": {
+            "get": {
+                "tags": [
+                    "Attachments"
+                ],
+                "summary": "List file attachment bug",
+                "description": "Mengambil semua file yang ter-attach pada suatu bug.",
+                "operationId": "2089891a07344d6f53e5f75bcd16a655",
+                "parameters": [
+                    {
+                        "name": "bugId",
+                        "in": "path",
+                        "description": "ID bug",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Daftar attachment berhasil diambil"
+                    },
+                    "404": {
+                        "description": "Bug tidak ditemukan"
+                    },
+                    "401": {
+                        "description": "Tidak terautentikasi"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Attachments"
+                ],
+                "summary": "Upload file untuk bug",
+                "description": "Meng-upload file (misal screenshot) dan menghubungkannya dengan bug tertentu.",
+                "operationId": "77d1b1a2b89ed2db0d54ebf8c7df9a6a",
+                "parameters": [
+                    {
+                        "name": "bugId",
+                        "in": "path",
+                        "description": "ID bug",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "file"
+                                ],
+                                "properties": {
+                                    "file": {
+                                        "description": "File yang akan di-upload (max 10MB)",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "File berhasil di-upload"
+                    },
+                    "422": {
+                        "description": "Validasi gagal (ukuran/tipe file salah, dsb)"
+                    },
+                    "404": {
+                        "description": "Bug tidak ditemukan"
+                    },
+                    "401": {
+                        "description": "Tidak terautentikasi"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/attachments/{id}": {
+            "delete": {
+                "tags": [
+                    "Attachments"
+                ],
+                "summary": "Hapus attachment",
+                "description": "Menghapus file attachment dari bug.",
+                "operationId": "66e2f863588e3bac0aca3972e89726b3",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID attachment",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Attachment berhasil dihapus"
+                    },
+                    "404": {
+                        "description": "Attachment tidak ditemukan"
+                    },
+                    "401": {
+                        "description": "Tidak terautentikasi"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/register": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Register user baru",
+                "description": "Membuat akun baru (QA, DEV, PM) dan langsung mengembalikan token Sanctum.",
+                "operationId": "8e4e3cb7b46126f4696379d3c7eeb4ad",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password",
+                                    "password_confirmation",
+                                    "role"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "QA User"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "qa@test.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    },
+                                    "role": {
+                                        "description": "QA, DEV, atau PM",
+                                        "type": "string",
+                                        "example": "QA"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Registrasi berhasil"
+                    },
+                    "422": {
+                        "description": "Validasi gagal (misal email sudah digunakan)"
+                    }
+                }
+            }
+        },
+        "/api/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login & dapatkan token",
+                "description": "Login menggunakan email & password, mengembalikan token Sanctum.",
+                "operationId": "222b2625838e3c57e017987f73598fda",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "qa@test.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login berhasil, token dikembalikan"
+                    },
+                    "422": {
+                        "description": "Kredensial salah / data tidak valid"
+                    }
+                }
+            }
+        },
+        "/api/logout": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Logout user",
+                "description": "Menghapus token aktif sehingga tidak bisa digunakan lagi.",
+                "operationId": "ad65cbbd4e9f201619eae184a5961a98",
+                "responses": {
+                    "200": {
+                        "description": "Logout berhasil"
+                    },
+                    "401": {
+                        "description": "Tidak terautentikasi"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/me": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Profil user yang sedang login",
+                "description": "Mengembalikan data user berdasarkan token yang dikirim di header Authorization.",
+                "operationId": "8367feff40ba10e43187792cad3132c1",
+                "responses": {
+                    "200": {
+                        "description": "Berhasil mengambil data user"
+                    },
+                    "401": {
+                        "description": "Tidak terautentikasi"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/bugs": {
+            "get": {
+                "tags": [
+                    "Bugs"
+                ],
+                "summary": "List bug (paginated)",
+                "description": "Mengambil daftar bug dengan pagination dan optional filter status/severity.",
+                "operationId": "39296d626dc6d8e1cd51bb483e29ca65",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Nomor halaman",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Jumlah item per halaman",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 10
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Filter status (OPEN, IN_PROGRESS, RESOLVED, CLOSED)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "OPEN"
+                        }
+                    },
+                    {
+                        "name": "severity",
+                        "in": "query",
+                        "description": "Filter severity (LOW, MEDIUM, HIGH, CRITICAL)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "HIGH"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Daftar bug berhasil diambil"
+                    },
+                    "401": {
+                        "description": "Tidak terautentikasi"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Bugs"
+                ],
+                "summary": "Buat bug baru",
+                "description": "QA melaporkan bug baru.",
+                "operationId": "3ef01ac1accfc6842a8ebb40a2858c49",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "title",
+                                    "description",
+                                    "reproduction_steps",
+                                    "severity"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "example": "Login button tidak berfungsi"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Tombol login tidak merespon."
+                                    },
+                                    "reproduction_steps": {
+                                        "type": "string",
+                                        "example": "1. Buka halaman login\\n2. Klik tombol login"
+                                    },
+                                    "severity": {
+                                        "type": "string",
+                                        "example": "HIGH"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Bug berhasil dibuat"
+                    },
+                    "422": {
+                        "description": "Validasi gagal"
+                    },
+                    "401": {
+                        "description": "Tidak terautentikasi"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/bugs/{id}": {
+            "get": {
+                "tags": [
+                    "Bugs"
+                ],
+                "summary": "Detail bug",
+                "description": "Mengambil detail satu bug lengkap dengan relasi.",
+                "operationId": "d7b6039878a38708aa605ff58ef43d12",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID bug",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail bug berhasil diambil"
+                    },
+                    "404": {
+                        "description": "Bug tidak ditemukan"
+                    },
+                    "401": {
+                        "description": "Tidak terautentikasi"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Bugs"
+                ],
+                "summary": "Update data bug",
+                "description": "Mengubah data bug (title, description, severity, assignee).",
+                "operationId": "7e9c2362387eb4310d5aeac54d274eb0",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID bug",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "example": "Judul baru"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Deskripsi baru"
+                                    },
+                                    "reproduction_steps": {
+                                        "type": "string",
+                                        "example": "Step baru"
+                                    },
+                                    "severity": {
+                                        "type": "string",
+                                        "example": "MEDIUM"
+                                    },
+                                    "assignee_id": {
+                                        "type": "integer",
+                                        "example": 2
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Bug berhasil diupdate"
+                    },
+                    "404": {
+                        "description": "Bug tidak ditemukan"
+                    },
+                    "401": {
+                        "description": "Tidak terautentikasi"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Bugs"
+                ],
+                "summary": "Hapus bug",
+                "description": "Menghapus bug dari sistem.",
+                "operationId": "e3092df921f28a113c1ca342ccf74edb",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID bug",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Bug berhasil dihapus"
+                    },
+                    "404": {
+                        "description": "Bug tidak ditemukan"
+                    },
+                    "401": {
+                        "description": "Tidak terautentikasi"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/bugs/{id}/status": {
+            "put": {
+                "tags": [
+                    "Bugs"
+                ],
+                "summary": "Update status bug",
+                "description": "Mengubah status bug dan mencatat history.",
+                "operationId": "a6b0980bf23b316d7c8a3e2404102388",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID bug",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "status"
+                                ],
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "example": "IN_PROGRESS"
+                                    },
+                                    "notes": {
+                                        "type": "string",
+                                        "example": "Sedang dikerjakan oleh DEV"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Status berhasil diupdate"
+                    },
+                    "422": {
+                        "description": "Status tidak valid / transition tidak diizinkan"
+                    },
+                    "404": {
+                        "description": "Bug tidak ditemukan"
+                    },
+                    "401": {
+                        "description": "Tidak terautentikasi"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/bugs/{bugId}/comments": {
+            "get": {
+                "tags": [
+                    "Comments"
+                ],
+                "summary": "List komentar untuk 1 bug",
+                "description": "Mengambil semua komentar yang terkait dengan bug tertentu.",
+                "operationId": "a12fbaef7a7e74c87db37ab4c78b8a4e",
+                "parameters": [
+                    {
+                        "name": "bugId",
+                        "in": "path",
+                        "description": "ID bug",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Daftar komentar berhasil diambil"
+                    },
+                    "404": {
+                        "description": "Bug tidak ditemukan"
+                    },
+                    "401": {
+                        "description": "Tidak terautentikasi"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Comments"
+                ],
+                "summary": "Tambah komentar ke bug",
+                "description": "Menambahkan komentar baru pada bug tertentu.",
+                "operationId": "24046f3b2d00ab0060b1b7068f2a28ee",
+                "parameters": [
+                    {
+                        "name": "bugId",
+                        "in": "path",
+                        "description": "ID bug",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "content"
+                                ],
+                                "properties": {
+                                    "content": {
+                                        "type": "string",
+                                        "example": "Sudah di-test, masih muncul error di step 3."
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Komentar berhasil ditambahkan"
+                    },
+                    "422": {
+                        "description": "Validasi gagal"
+                    },
+                    "404": {
+                        "description": "Bug tidak ditemukan"
+                    },
+                    "401": {
+                        "description": "Tidak terautentikasi"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/comments/{id}": {
+            "delete": {
+                "tags": [
+                    "Comments"
+                ],
+                "summary": "Hapus komentar",
+                "description": "Menghapus komentar (hanya oleh pemilik komentar atau role tertentu).",
+                "operationId": "b683c30a239aa780ffc7e9b219e90811",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID komentar",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Komentar berhasil dihapus"
+                    },
+                    "404": {
+                        "description": "Komentar tidak ditemukan"
+                    },
+                    "401": {
+                        "description": "Tidak terautentikasi"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/reports/bugs/summary": {
+            "get": {
+                "tags": [
+                    "Reports"
+                ],
+                "summary": "Ringkasan bug per periode",
+                "description": "Mengembalikan total bug dan breakdown status untuk rentang tanggal tertentu.",
+                "operationId": "7f63d0e3042f061bb4e6bd5aa444b296",
+                "parameters": [
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "description": "Tanggal awal (YYYY-MM-DD)",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "2025-01-01"
+                        }
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "description": "Tanggal akhir (YYYY-MM-DD)",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "2025-12-31"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil mengambil ringkasan bug"
+                    },
+                    "401": {
+                        "description": "Tidak terautentikasi"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/reports/bugs/by-status": {
+            "get": {
+                "tags": [
+                    "Reports"
+                ],
+                "summary": "Jumlah bug per status",
+                "description": "Mengembalikan jumlah bug untuk setiap status (OPEN, IN_PROGRESS, RESOLVED, CLOSED).",
+                "operationId": "9683cfdc71320ae9dc2979ae4882515f",
+                "responses": {
+                    "200": {
+                        "description": "Data berhasil diambil"
+                    },
+                    "401": {
+                        "description": "Tidak terautentikasi"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/reports/bugs/by-severity": {
+            "get": {
+                "tags": [
+                    "Reports"
+                ],
+                "summary": "Jumlah bug per severity",
+                "description": "Mengembalikan jumlah bug untuk setiap severity (LOW, MEDIUM, HIGH, CRITICAL).",
+                "operationId": "f853011a2fe440abcb535ce3d41958b7",
+                "responses": {
+                    "200": {
+                        "description": "Data berhasil diambil"
+                    },
+                    "401": {
+                        "description": "Tidak terautentikasi"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "sanctum": {
+                "type": "http",
+                "description": "Masukkan token dari /api/login atau /api/register.",
+                "bearerFormat": "Token",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Attachments",
+            "description": "Attachments"
+        },
+        {
+            "name": "Auth",
+            "description": "Auth"
+        },
+        {
+            "name": "Bugs",
+            "description": "Bugs"
+        },
+        {
+            "name": "Comments",
+            "description": "Comments"
+        },
+        {
+            "name": "Reports",
+            "description": "Reports"
+        }
+    ]
+}
