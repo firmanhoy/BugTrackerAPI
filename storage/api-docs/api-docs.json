@@ -969,8 +969,8 @@
                     "201": {
                         "description": "Komentar berhasil ditambahkan"
                     },
-                    "422": {
-                        "description": "Validasi gagal"
+                    "400": {
+                        "description": "Validasi gagal - content wajib diisi"
                     },
                     "404": {
                         "description": "Bug tidak ditemukan"
