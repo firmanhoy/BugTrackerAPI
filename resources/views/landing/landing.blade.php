@@ -526,7 +526,7 @@
             </div>
 
             <div class="border-t border-gray-100 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-                <p class="text-sm text-gray-400">© 2023 Bug Tracker API. All rights reserved.</p>
+                <p class="text-sm text-gray-400">© 2025 Bug Tracker API. All rights reserved.</p>
                 <div class="flex gap-6">
                     <a href="https://github.com/firmanhoy/BugTrackerAPI" target="_blank"
                         class="text-sm font-medium text-gray-600 hover:text-red-600 transition-colors">
