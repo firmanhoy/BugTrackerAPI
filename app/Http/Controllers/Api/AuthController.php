@@ -43,44 +43,47 @@ class AuthController extends Controller
      */
     public function register(StoreUserRequest $request)
     {
-        $request->validate([
-            'name'                  => 'required|string|max:255',
-            'email'                 => 'required|email',
-            'password'              => 'required|string|min:6|confirmed',
-            'role'                  => 'required|in:QA,DEV,PM',
-        ]);
+        try {
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'role' => $request->role ?? 'QA',
+            ]);
 
-        // Cek email sudah terdaftar → 409
-        if (User::where('email', $request->email)->exists()) {
+            $token = $user->createToken('api-token')->plainTextToken;
+
+            // ✅ RESPONSE STRUCTURE YANG BENAR (test suite expect ini)
+            return response()->json([
+                'success' => true,
+                'message' => 'User registered successfully',
+                'data' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->role,
+                    'token' => $token,
+                ]
+            ], 201);
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Handle duplicate email
+            if ($e->getCode() == 23000) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Email sudah terdaftar',
+                ], 409);
+            }
+
             return response()->json([
                 'success' => false,
-                'message' => 'Email sudah terdaftar',
-                'errors'  => [
-                    'email' => ['Email sudah terdaftar'],
-                ],
-            ], 409);
+                'message' => 'Registrasi gagal: ' . $e->getMessage(),
+            ], 500);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Registrasi gagal: ' . $e->getMessage(),
+            ], 500);
         }
-
-        $user = User::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'password' => Hash::make($request->password),
-            'role'     => $request->role,
-        ]);
-
-        $token = $user->createToken('api-token')->plainTextToken;
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Registrasi berhasil',
-            'data'    => [
-                'id'    => $user->id,
-                'name'  => $user->name,
-                'email' => $user->email,
-                'role'  => $user->role,
-                'token' => $token,
-            ],
-        ], 201);
     }
 
 
