@@ -43,31 +43,46 @@ class AuthController extends Controller
      */
     public function register(StoreUserRequest $request)
     {
-        try {
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'role' => $request->role ?? 'QA',
-            ]);
+        $request->validate([
+            'name'                  => 'required|string|max:255',
+            'email'                 => 'required|email',
+            'password'              => 'required|string|min:6|confirmed',
+            'role'                  => 'required|in:QA,DEV,PM',
+        ]);
 
-            $token = $user->createToken('api-token')->plainTextToken;
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Registrasi berhasil',
-                'data' => [
-                    'user' => $user,
-                    'token' => $token,
-                ]
-            ], 201);
-        } catch (\Exception $e) {
+        // Cek email sudah terdaftar → 409
+        if (User::where('email', $request->email)->exists()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Registrasi gagal: ' . $e->getMessage(),
-            ], 500);
+                'message' => 'Email sudah terdaftar',
+                'errors'  => [
+                    'email' => ['Email sudah terdaftar'],
+                ],
+            ], 409);
         }
+
+        $user = User::create([
+            'name'     => $request->name,
+            'email'    => $request->email,
+            'password' => Hash::make($request->password),
+            'role'     => $request->role,
+        ]);
+
+        $token = $user->createToken('api-token')->plainTextToken;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Registrasi berhasil',
+            'data'    => [
+                'id'    => $user->id,
+                'name'  => $user->name,
+                'email' => $user->email,
+                'role'  => $user->role,
+                'token' => $token,
+            ],
+        ], 201);
     }
+
 
     /**
      * @OA\Post(

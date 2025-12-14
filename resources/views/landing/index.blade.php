@@ -358,7 +358,7 @@
             </a>
             <ul class="nav-links">
                 <li><a href="/api/documentation">📚 Documentation</a></li>
-                <li><a href="https://github.com/yourusername/bug-tracker-api" target="_blank">⭐ GitHub</a></li>
+                <li><a href="https://github.com/firmanhoy/BugTrackerAPI" target="_blank">⭐ GitHub</a></li>
             </ul>
         </div>
     </nav>
@@ -374,7 +374,7 @@
                 <a href="/api/documentation" class="btn btn-primary">
                     Get Started →
                 </a>
-                <a href="https://github.com/yourusername/bug-tracker-api" class="btn btn-secondary" target="_blank">
+                <a href="https://github.com/firmanhoy/BugTrackerAPI" class="btn btn-secondary" target="_blank">
                     View on GitHub
                 </a>
             </div>
@@ -440,7 +440,7 @@
     <footer>
         <div class="footer-links">
             <a href="/api/documentation">Documentation</a>
-            <a href="https://github.com/yourusername/bug-tracker-api" target="_blank">GitHub</a>
+            <a href="https://github.com/firmanhoy/BugTrackerAPI" target="_blank">GitHub</a>
             <a href="#">Terms of Service</a>
             <a href="#">Privacy Policy</a>
         </div>

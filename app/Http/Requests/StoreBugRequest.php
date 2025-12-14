@@ -14,13 +14,14 @@ class StoreBugRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
+            'title'              => 'required|string|min:1|max:255',
+            'description'        => 'required|string',
             'reproduction_steps' => 'required|string',
-            'severity' => 'required|in:LOW,MEDIUM,HIGH,CRITICAL',
-            'assignee_id' => 'nullable|exists:users,id',
+            'severity'           => 'required|in:LOW,MEDIUM,HIGH,CRITICAL',
+            'assignee_id'        => 'nullable|integer|exists:users,id',
         ];
     }
+
 
     public function messages(): array
     {

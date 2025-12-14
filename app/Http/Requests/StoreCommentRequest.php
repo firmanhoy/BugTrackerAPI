@@ -3,26 +3,32 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class StoreCommentRequest extends FormRequest
 {
-    public function authorize(): bool
+    public function authorize()
     {
         return true;
     }
 
-    public function rules(): array
+    public function rules()
     {
         return [
-            'content' => 'required|string|min:5',
+            'content' => 'required|string|min:1|max:1000',
         ];
     }
 
-    public function messages(): array
+    // ✅ Override ini yang penting - convert 422 ke 400
+    protected function failedValidation(Validator $validator)
     {
-        return [
-            'content.required' => 'Komentar wajib diisi',
-            'content.min' => 'Komentar minimal 5 karakter',
-        ];
+        throw new HttpResponseException(
+            response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors(),
+            ], 400)
+        );
     }
 }

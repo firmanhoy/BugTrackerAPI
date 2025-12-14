@@ -10,6 +10,8 @@ use App\Models\Bug;
 use App\Models\BugStatusHistory;
 use Illuminate\Support\Facades\Auth;
 use OpenApi\Annotations as OA;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+
 
 class BugController extends Controller
 {
@@ -61,13 +63,33 @@ class BugController extends Controller
     public function index()
     {
         try {
-            $page = request('page', 1);
-            $perPage = request('per_page', 10);
-            $status = request('status');
-            $severity = request('severity');
+            $page      = request('page', 1);
+            $perPage   = request('per_page', 10);
+            $status    = request('status');
+            $severity  = request('severity');
             $assigneeId = request('assignee_id');
             $startDate = request('start_date');
-            $endDate = request('end_date');
+            $endDate   = request('end_date');
+
+            // ENUM valid sesuai dokumen test
+            $validStatuses  = ['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'];
+            $validSeverities = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
+
+            // ❗ Invalid status filter → 400 (TC059)
+            if ($status && !in_array($status, $validStatuses, true)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid status filter',
+                ], 400);
+            }
+
+            // (Optional) Invalid severity filter → 400 juga, kalau di spec memang diminta
+            if ($severity && !in_array($severity, $validSeverities, true)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid severity filter',
+                ], 400);
+            }
 
             $query = Bug::with(['reporter', 'assignee', 'comments', 'statusHistories']);
 
@@ -87,13 +109,13 @@ class BugController extends Controller
             $bugs = $query->paginate($perPage, ['*'], 'page', $page);
 
             return response()->json([
-                'success' => true,
-                'data' => $bugs->items(),
+                'success'    => true,
+                'data'       => $bugs->items(),
                 'pagination' => [
-                    'total' => $bugs->total(),
-                    'per_page' => $bugs->perPage(),
-                    'current_page' => $bugs->currentPage(),
-                    'last_page' => $bugs->lastPage(),
+                    'total'         => $bugs->total(),
+                    'per_page'      => $bugs->perPage(),
+                    'current_page'  => $bugs->currentPage(),
+                    'last_page'     => $bugs->lastPage(),
                 ]
             ], 200);
         } catch (\Exception $e) {
@@ -103,6 +125,7 @@ class BugController extends Controller
             ], 500);
         }
     }
+
 
 
     /**
@@ -204,20 +227,30 @@ class BugController extends Controller
      */
     public function show($id)
     {
-        try {
-            $bug = Bug::with(['reporter', 'assignee', 'comments', 'attachments', 'statusHistories'])
-                ->findOrFail($id);
-
+        // 1) Validasi format ID (harus angka)
+        if (!ctype_digit((string) $id)) {
             return response()->json([
-                'success' => true,
-                'data' => $bug,
-            ], 200);
-        } catch (\Exception $e) {
+                'success' => false,
+                'message' => 'ID bug harus berupa angka yang valid',
+            ], 400);
+        }
+
+        // 2) Cari bug, kalau tidak ada → 404
+        $bug = Bug::with(['reporter', 'assignee', 'comments', 'attachments', 'statusHistories'])
+            ->find($id);
+
+        if (!$bug) {
             return response()->json([
                 'success' => false,
                 'message' => 'Bug tidak ditemukan',
             ], 404);
         }
+
+        // 3) Sukses → 200
+        return response()->json([
+            'success' => true,
+            'data' => $bug,
+        ], 200);
     }
 
 
@@ -279,13 +312,22 @@ class BugController extends Controller
                 'message' => 'Bug berhasil diupdate',
                 'data' => $bug,
             ], 200);
+        } catch (ModelNotFoundException $e) {
+            // ID valid tapi bug nggak ketemu → 404 (sesuai TC075)
+            return response()->json([
+                'success' => false,
+                'message' => 'Bug tidak ditemukan',
+            ], 404);
         } catch (\Exception $e) {
+            // Error lain tetap 500
             return response()->json([
                 'success' => false,
                 'message' => 'Error: ' . $e->getMessage(),
             ], 500);
         }
     }
+
+
 
 
     /**
@@ -407,6 +449,11 @@ class BugController extends Controller
                 'success' => true,
                 'message' => 'Bug berhasil dihapus',
             ], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bug tidak ditemukan',
+            ], 404);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -414,6 +461,8 @@ class BugController extends Controller
             ], 500);
         }
     }
+
+
 
     /**
      * Helper: Validasi transisi status

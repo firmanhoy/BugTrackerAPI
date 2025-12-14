@@ -7,6 +7,8 @@ use App\Http\Requests\StoreCommentRequest;
 use App\Models\Bug;
 use App\Models\Comment;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Validation\ValidationException;
 use OpenApi\Annotations as OA;
 
 class CommentController extends Controller
@@ -60,7 +62,7 @@ class CommentController extends Controller
                     'last_page' => $comments->lastPage(),
                 ]
             ], 200);
-        } catch (\Exception $e) {
+        } catch (ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Bug tidak ditemukan',
@@ -94,8 +96,8 @@ class CommentController extends Controller
      *         description="Komentar berhasil ditambahkan"
      *     ),
      *     @OA\Response(
-     *         response=422,
-     *         description="Validasi gagal"
+     *         response=400,
+     *         description="Validasi gagal - content wajib diisi"
      *     ),
      *     @OA\Response(
      *         response=404,
@@ -110,7 +112,9 @@ class CommentController extends Controller
     public function store(StoreCommentRequest $request, $bugId)
     {
         try {
+            // FIX TC100: Check bug exists FIRST (before creating comment)
             $bug = Bug::findOrFail($bugId);
+
             $currentUserId = Auth::id();
 
             $comment = Comment::create([
@@ -126,11 +130,19 @@ class CommentController extends Controller
                 'message' => 'Komentar berhasil ditambahkan',
                 'data' => $comment,
             ], 201);
-        } catch (\Exception $e) {
+        } catch (ModelNotFoundException $e) {
+            // FIX TC100: Return 404 for nonexistent bug (instead of 500)
             return response()->json([
                 'success' => false,
-                'message' => 'Error: ' . $e->getMessage(),
-            ], 500);
+                'message' => 'Bug tidak ditemukan',
+            ], 404);
+        } catch (ValidationException $e) {
+            // FIX TC098 & TC099: Return 400 for validation errors (instead of 422)
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $e->errors(),
+            ], 400);
         }
     }
 
@@ -182,7 +194,7 @@ class CommentController extends Controller
                 'success' => true,
                 'message' => 'Komentar berhasil dihapus',
             ], 200);
-        } catch (\Exception $e) {
+        } catch (ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Komentar tidak ditemukan',

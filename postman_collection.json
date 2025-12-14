@@ -1,658 +1,504 @@
 {
-  "info": {
-    "name": "Bug Tracker API",
-    "description": "Complete REST API collection for Bug Tracker - QA Management System\n\nBase URL: http://localhost:8000\n\nFeatures:\n- Authentication (Register, Login, Logout)\n- Bug Management (CRUD, Status Update)\n- Comments (Add, List, Delete)\n- Attachments (Upload, List, Download, Delete)\n- Reports (Status, Severity, Summary)",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-  },
-  "variable": [
-    {
-      "key": "base_url",
-      "value": "http://localhost:8000",
-      "type": "string"
+    "info": {
+        "name": "Bug Tracker API - Full Suite (TC001-TC101)",
+        "_postman_id": "00000000-0000-0000-0000-000000000004",
+        "description": "Collection lengkap untuk menjalankan test suite TC001-TC101 berdasarkan Comprehensive-API-Test-Suite-FIXED.xlsx dengan data-driven CSV per modul (Auth, Bugs, Comments).",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
     },
-    {
-      "key": "token",
-      "value": "",
-      "type": "string"
-    }
-  ],
-  "item": [
-    {
-      "name": "1. Authentication",
-      "item": [
+    "item": [
         {
-          "name": "Register QA",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "if (pm.response.code === 201) {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.environment.set('token', jsonData.data.token);",
-                  "    pm.collectionVariables.set('token', jsonData.data.token);",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"QA User\",\n  \"email\": \"qa@test.com\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\",\n  \"role\": \"QA\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/api/register",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "register"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Register Developer",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Developer User\",\n  \"email\": \"dev@test.com\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\",\n  \"role\": \"DEV\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/api/register",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "register"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Login",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "if (pm.response.code === 200) {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.environment.set('token', jsonData.data.token);",
-                  "    pm.collectionVariables.set('token', jsonData.data.token);",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"qa@test.com\",\n  \"password\": \"password123\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/api/login",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "login"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get Profile (Me)",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/me",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "me"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Logout",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/logout",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "logout"
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "2. Bug Management",
-      "item": [
-        {
-          "name": "Create Bug",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"title\": \"Login button tidak berfungsi\",\n  \"description\": \"Tombol login tidak merespon saat diklik di halaman login\",\n  \"reproduction_steps\": \"1. Buka halaman login\\n2. Isi email dan password\\n3. Klik tombol login\\n4. Tidak ada respon\",\n  \"severity\": \"HIGH\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/api/bugs",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "bugs"
-              ]
-            }
-          }
-        },
-        {
-          "name": "List Bugs (Paginated)",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/bugs?page=1&per_page=10",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "bugs"
-              ],
-              "query": [
+            "name": "Auth (TC001-TC031)",
+            "item": [
                 {
-                  "key": "page",
-                  "value": "1"
+                    "name": "TC001-TC014 Register",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/register",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "register"]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"{{name}}\",\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"password_confirmation\": \"{{password_confirmation}}\",\n  \"role\": \"{{role}}\"\n}"
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "const testId = pm.iterationData.get('TestID') || 'Manual';",
+                                    "const expectedStatus = Number(pm.iterationData.get('expectedStatus') || 201);",
+                                    "pm.test(testId + ' - Status code sesuai', function () {",
+                                    "  pm.response.to.have.status(expectedStatus);",
+                                    "});",
+                                    "if (pm.response.code === 201) {",
+                                    "  pm.environment.set('lastRegisteredEmail', pm.iterationData.get('email') || '');",
+                                    "  pm.environment.set('lastRegisteredPassword', pm.iterationData.get('password') || '');",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ]
                 },
                 {
-                  "key": "per_page",
-                  "value": "10"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get Bug Detail",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/bugs/1",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "bugs",
-                "1"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Update Bug",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"title\": \"Login button tidak berfungsi (Updated)\",\n  \"description\": \"Updated description\",\n  \"severity\": \"CRITICAL\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/api/bugs/1",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "bugs",
-                "1"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Update Bug Status",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"status\": \"IN_PROGRESS\",\n  \"notes\": \"Developer sedang mengerjakan bug ini\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/api/bugs/1/status",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "bugs",
-                "1",
-                "status"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Delete Bug",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/bugs/1",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "bugs",
-                "1"
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "3. Comments",
-      "item": [
-        {
-          "name": "Add Comment",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"content\": \"Sudah coba test di staging, masih error. Screenshot dilampirkan.\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/api/bugs/1/comments",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "bugs",
-                "1",
-                "comments"
-              ]
-            }
-          }
-        },
-        {
-          "name": "List Comments",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/bugs/1/comments",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "bugs",
-                "1",
-                "comments"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Delete Comment",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/comments/1",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "comments",
-                "1"
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "4. Attachments",
-      "item": [
-        {
-          "name": "Upload Attachment",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "body": {
-              "mode": "formdata",
-              "formdata": [
-                {
-                  "key": "file",
-                  "type": "file",
-                  "src": []
-                }
-              ]
-            },
-            "url": {
-              "raw": "{{base_url}}/api/bugs/1/attachments",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "bugs",
-                "1",
-                "attachments"
-              ]
-            }
-          }
-        },
-        {
-          "name": "List Attachments",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/bugs/1/attachments",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "bugs",
-                "1",
-                "attachments"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get Attachment Detail",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/attachments/1",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "attachments",
-                "1"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Download Attachment",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/attachments/1/download",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "attachments",
-                "1",
-                "download"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Delete Attachment",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/attachments/1",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "attachments",
-                "1"
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "5. Reports",
-      "item": [
-        {
-          "name": "Report by Status",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/reports/bugs/by-status",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "reports",
-                "bugs",
-                "by-status"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Report by Severity",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/reports/bugs/by-severity",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "reports",
-                "bugs",
-                "by-severity"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Summary Report",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/reports/bugs/summary?start_date=2024-01-01&end_date=2024-12-31",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "reports",
-                "bugs",
-                "summary"
-              ],
-              "query": [
-                {
-                  "key": "start_date",
-                  "value": "2024-01-01"
+                    "name": "TC015-TC022 Login",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/login",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "login"]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"{{login_email}}\",\n  \"password\": \"{{login_password}}\"\n}"
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "const testId = pm.iterationData.get('TestID') || 'Manual';",
+                                    "const expectedStatus = Number(pm.iterationData.get('expectedStatus') || 200);",
+                                    "pm.test(testId + ' - Status code sesuai', function () {",
+                                    "  pm.response.to.have.status(expectedStatus);",
+                                    "});",
+                                    "if (pm.response.code === 200) {",
+                                    "  const json = pm.response.json();",
+                                    "  if (json.data && json.data.token) {",
+                                    "    pm.environment.set('token', json.data.token);",
+                                    "  }",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ]
                 },
                 {
-                  "key": "end_date",
-                  "value": "2024-12-31"
+                    "name": "TC023-TC027 Get Profile",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/me",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "me"]
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "const testId = pm.iterationData.get('TestID') || 'Manual';",
+                                    "const expectedStatus = Number(pm.iterationData.get('expectedStatus') || 200);",
+                                    "pm.test(testId + ' - Status code sesuai', function () {",
+                                    "  pm.response.to.have.status(expectedStatus);",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "TC028-TC031 Logout",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/logout",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "logout"]
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "const testId = pm.iterationData.get('TestID') || 'Manual';",
+                                    "const expectedStatus = Number(pm.iterationData.get('expectedStatus') || 200);",
+                                    "pm.test(testId + ' - Status code sesuai', function () {",
+                                    "  pm.response.to.have.status(expectedStatus);",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ]
                 }
-              ]
-            }
-          }
+            ]
+        },
+        {
+            "name": "Bugs (TC032-TC090)",
+            "item": [
+                {
+                    "name": "TC032-TC046 Create Bug",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/bugs",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "bugs"]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"title\": \"{{title}}\",\n  \"description\": \"{{description}}\",\n  \"reproduction_steps\": \"{{reproduction_steps}}\",\n  \"severity\": \"{{severity}}\"\n}"
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "const testId = pm.iterationData.get('TestID') || 'Manual';",
+                                    "const expectedStatus = Number(pm.iterationData.get('expectedStatus') || 201);",
+                                    "pm.test(testId + ' - Status code sesuai', function () {",
+                                    "  pm.response.to.have.status(expectedStatus);",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "TC047-TC060 List Bugs",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/bugs?page={{page}}&per_page={{per_page}}&status={{filter_status}}&severity={{filter_severity}}",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "bugs"],
+                            "query": [
+                                { "key": "page", "value": "{{page}}" },
+                                { "key": "per_page", "value": "{{per_page}}" },
+                                {
+                                    "key": "status",
+                                    "value": "{{filter_status}}"
+                                },
+                                {
+                                    "key": "severity",
+                                    "value": "{{filter_severity}}"
+                                }
+                            ]
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "const testId = pm.iterationData.get('TestID') || 'Manual';",
+                                    "const expectedStatus = Number(pm.iterationData.get('expectedStatus') || 200);",
+                                    "pm.test(testId + ' - Status code sesuai', function () {",
+                                    "  pm.response.to.have.status(expectedStatus);",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "TC061-TC067 Get Bug Detail",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/bugs/{{bugId}}",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "bugs", "{{bugId}}"]
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "const testId = pm.iterationData.get('TestID') || 'Manual';",
+                                    "const expectedStatus = Number(pm.iterationData.get('expectedStatus') || 200);",
+                                    "pm.test(testId + ' - Status code sesuai', function () {",
+                                    "  pm.response.to.have.status(expectedStatus);",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "TC068-TC076 Update Bug",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/bugs/{{bugId}}",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "bugs", "{{bugId}}"]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"title\": \"{{title}}\",\n  \"description\": \"{{description}}\",\n  \"reproduction_steps\": \"{{reproduction_steps}}\",\n  \"severity\": \"{{severity}}\",\n  \"assignee_id\": {{assignee_id}}\n}"
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "const testId = pm.iterationData.get('TestID') || 'Manual';",
+                                    "const expectedStatus = Number(pm.iterationData.get('expectedStatus') || 200);",
+                                    "pm.test(testId + ' - Status code sesuai', function () {",
+                                    "  pm.response.to.have.status(expectedStatus);",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "TC077-TC085 Update Status",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/bugs/{{bugId}}/status",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "bugs", "{{bugId}}", "status"]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"status\": \"{{status}}\",\n  \"notes\": \"Status updated via CSV\"\n}"
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "const testId = pm.iterationData.get('TestID') || 'Manual';",
+                                    "const expectedStatus = Number(pm.iterationData.get('expectedStatus') || 200);",
+                                    "pm.test(testId + ' - Status code sesuai', function () {",
+                                    "  pm.response.to.have.status(expectedStatus);",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "TC086-TC090 Delete Bug",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/bugs/{{bugId}}",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "bugs", "{{bugId}}"]
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "const testId = pm.iterationData.get('TestID') || 'Manual';",
+                                    "const expectedStatus = Number(pm.iterationData.get('expectedStatus') || 200);",
+                                    "pm.test(testId + ' - Status code sesuai', function () {",
+                                    "  pm.response.to.have.status(expectedStatus);",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Comments (TC091-TC101)",
+            "item": [
+                {
+                    "name": "TC091-TC094 Get Comments",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/bugs/{{bugId}}/comments",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "bugs", "{{bugId}}", "comments"]
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "const testId = pm.iterationData.get('TestID') || 'Manual';",
+                                    "const expectedStatus = Number(pm.iterationData.get('expectedStatus') || 200);",
+                                    "pm.test(testId + ' - Status code sesuai', function () {",
+                                    "  pm.response.to.have.status(expectedStatus);",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "TC095-TC101 Add Comment",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/bugs/{{bugId}}/comments",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "bugs", "{{bugId}}", "comments"]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"content\": \"{{content}}\"\n}"
+                        }
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "type": "text/javascript",
+                                "exec": [
+                                    "const testId = pm.iterationData.get('TestID') || 'Manual';",
+                                    "const expectedStatus = Number(pm.iterationData.get('expectedStatus') || 201);",
+                                    "pm.test(testId + ' - Status code sesuai', function () {",
+                                    "  pm.response.to.have.status(expectedStatus);",
+                                    "});"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
         }
-      ]
-    }
-  ]
+    ],
+    "variable": [
+        { "key": "baseUrl", "value": "http://localhost:8000" },
+        { "key": "token", "value": "" },
+        { "key": "name", "value": "" },
+        { "key": "email", "value": "" },
+        { "key": "password", "value": "" },
+        { "key": "password_confirmation", "value": "" },
+        { "key": "role", "value": "" },
+        { "key": "login_email", "value": "" },
+        { "key": "login_password", "value": "" },
+        { "key": "bugId", "value": "" },
+        { "key": "title", "value": "" },
+        { "key": "description", "value": "" },
+        { "key": "reproduction_steps", "value": "" },
+        { "key": "severity", "value": "" },
+        { "key": "status", "value": "" },
+        { "key": "assignee_id", "value": "" },
+        { "key": "page", "value": "" },
+        { "key": "per_page", "value": "" },
+        { "key": "filter_status", "value": "" },
+        { "key": "filter_severity", "value": "" },
+        { "key": "content", "value": "" }
+    ]
 }
