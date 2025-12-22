@@ -53,7 +53,7 @@ class AuthController extends Controller
 
             $token = $user->createToken('api-token')->plainTextToken;
 
-            // ✅ RESPONSE STRUCTURE YANG BENAR (test suite expect ini)
+            // RESPONSE STRUCTURE YANG BENAR
             return response()->json([
                 'success' => true,
                 'message' => 'User registered successfully',

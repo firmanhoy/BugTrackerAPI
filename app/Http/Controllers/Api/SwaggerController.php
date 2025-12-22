@@ -25,7 +25,4 @@ use OpenApi\Annotations as OA;
  *     description="Masukkan token dari /api/login atau /api/register."
  * )
  */
-class SwaggerController extends Controller
-{
-    // kosong nggak apa‑apa
-}
+class SwaggerController extends Controller {}

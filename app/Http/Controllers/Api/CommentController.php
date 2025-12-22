@@ -112,7 +112,7 @@ class CommentController extends Controller
     public function store(StoreCommentRequest $request, $bugId)
     {
         try {
-            // FIX TC100: Check bug exists FIRST (before creating comment)
+            // Check bug exists FIRST (before creating comment)
             $bug = Bug::findOrFail($bugId);
 
             $currentUserId = Auth::id();
@@ -137,7 +137,7 @@ class CommentController extends Controller
                 'message' => 'Bug tidak ditemukan',
             ], 404);
         } catch (ValidationException $e) {
-            // FIX TC098 & TC099: Return 400 for validation errors (instead of 422)
+            //  Return 400 for validation errors (instead of 422)
             return response()->json([
                 'success' => false,
                 'message' => 'Validasi gagal',

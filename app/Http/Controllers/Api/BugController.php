@@ -75,7 +75,7 @@ class BugController extends Controller
             $validStatuses  = ['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'];
             $validSeverities = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
 
-            // ❗ Invalid status filter → 400 (TC059)
+            // ❗ Invalid status filter → 400 
             if ($status && !in_array($status, $validStatuses, true)) {
                 return response()->json([
                     'success' => false,
@@ -83,7 +83,7 @@ class BugController extends Controller
                 ], 400);
             }
 
-            // (Optional) Invalid severity filter → 400 juga, kalau di spec memang diminta
+            // (Optional) Invalid severity filter → 400 
             if ($severity && !in_array($severity, $validSeverities, true)) {
                 return response()->json([
                     'success' => false,
@@ -313,7 +313,7 @@ class BugController extends Controller
                 'data' => $bug,
             ], 200);
         } catch (ModelNotFoundException $e) {
-            // ID valid tapi bug nggak ketemu → 404 (sesuai TC075)
+            // ID valid tapi bug nggak ketemu → 404 
             return response()->json([
                 'success' => false,
                 'message' => 'Bug tidak ditemukan',
